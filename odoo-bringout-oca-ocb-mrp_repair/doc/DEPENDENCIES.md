@@ -2,5 +2,5 @@
 
 This addon depends on:
 
-- [repair](../../../../../oca-ocb-core/odoo-bringout-oca-ocb-repair)
-- [mrp](../../../../odoo-bringout-oca-ocb-mrp)
+- [repair](https://github.com/bringout/oca-ocb-core)
+- [mrp](https://github.com/bringout/oca-ocb-mrp)

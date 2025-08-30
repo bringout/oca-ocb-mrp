@@ -2,5 +2,5 @@
 
 This addon depends on:
 
-- [mrp_subcontracting](../../../../odoo-bringout-oca-ocb-mrp_subcontracting)
-- [stock_dropshipping](../../../../../oca-ocb-warehouse/odoo-bringout-oca-ocb-stock_dropshipping)
+- [mrp_subcontracting](https://github.com/bringout/oca-ocb-mrp)
+- [stock_dropshipping](https://github.com/bringout/oca-ocb-warehouse)
