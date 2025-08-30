@@ -2,5 +2,5 @@
 
 This addon depends on:
 
-- [mrp_subcontracting](https://github.com/bringout/oca-ocb-mrp/tree/4269a50148a6094a51e088d2ef69a6430f5da390/odoo-bringout-oca-ocb-mrp_subcontracting)
-- [repair](https://github.com/bringout/oca-ocb-core/tree/0e11bee18c8c7dd39664f7b81670e02dd0705e48/odoo-bringout-oca-ocb-repair)
+- [mrp_subcontracting](https://github.com/bringout/oca-ocb-mrp/tree/bbac70b9e2befc6422bbb1dcfb3ce8794468db5c/odoo-bringout-oca-ocb-mrp_subcontracting)
+- [repair](https://github.com/bringout/oca-ocb-core/tree/e9ca19c0c154b94934ea86258814c560c4e016f4/odoo-bringout-oca-ocb-repair)
