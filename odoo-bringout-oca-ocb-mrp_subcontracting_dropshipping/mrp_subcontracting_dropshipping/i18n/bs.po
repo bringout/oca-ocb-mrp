@@ -22,7 +22,11 @@ msgid ""
 "company. Note that standard subcontracting routes will be adapted so as to "
 "take these into account automatically."
 msgstr ""
+"Označite ovo polje da kreirate novu namjensku lokaciju za podugovaranje za "
+"ovu kompaniju. Imajte na umu da će standardne rute podugovaranja biti "
+"prilagođene da se automatski uzmu u obzir"
 
+# taken from hr.po
 #. module: mrp_subcontracting_dropshipping
 #: model:ir.model,name:mrp_subcontracting_dropshipping.model_res_company
 msgid "Companies"
@@ -35,10 +39,7 @@ msgstr "Tip preuzimanja za direktnu dostavu podugovarača"
 
 #. module: mrp_subcontracting_dropshipping
 #. odoo-python
-#: code:addons/mrp_subcontracting_dropshipping/models/stock_warehouse.py:0
-#: code:addons/mrp_subcontracting_dropshipping/models/stock_warehouse.py:0
-#: code:addons/mrp_subcontracting_dropshipping/models/stock_warehouse.py:0
-#: model:stock.route,name:mrp_subcontracting_dropshipping.route_subcontracting_dropshipping
+#: code:addons/mrp_subcontracting_dropshipping/models/stock_warehouse.py
 #, python-format
 msgid "Dropship Subcontractor on Order"
 msgstr "Direktna dostava podugovarača na narudžbu"
@@ -53,11 +54,13 @@ msgstr "Direktna dostava podugovarača"
 msgid "Dropship subcontractors with components"
 msgstr "Direktna dostava podugovarača sa komponentama"
 
+# taken from hr.po
 #. module: mrp_subcontracting_dropshipping
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_purchase_order__default_location_dest_id_is_subcontracting_loc
 msgid "Is a Subcontracting Location?"
 msgstr "Je podugovorna lokacija?"
 
+# taken from hr.po
 #. module: mrp_subcontracting_dropshipping
 #: model:ir.model,name:mrp_subcontracting_dropshipping.model_stock_warehouse_orderpoint
 msgid "Minimum Inventory Rule"
@@ -65,21 +68,24 @@ msgstr "Pravilo minimalne zalihe"
 
 #. module: mrp_subcontracting_dropshipping
 #. odoo-python
-#: code:addons/mrp_subcontracting_dropshipping/models/purchase.py:0
+#: code:addons/mrp_subcontracting_dropshipping/models/purchase.py
 #, python-format
 msgid "Please note this purchase order is for subcontracting purposes."
 msgstr "Imajte na umu da je ova narudžbenica namijenjena svrsi podugovaranja"
 
+# taken from hr.po
 #. module: mrp_subcontracting_dropshipping
 #: model:ir.model,name:mrp_subcontracting_dropshipping.model_purchase_order
 msgid "Purchase Order"
 msgstr "Nalog za nabavu"
 
+# taken from hr.po
 #. module: mrp_subcontracting_dropshipping
 #: model:ir.model,name:mrp_subcontracting_dropshipping.model_stock_move
 msgid "Stock Move"
 msgstr "Skladišni prijenos"
 
+# taken from hr.po
 #. module: mrp_subcontracting_dropshipping
 #: model:ir.model,name:mrp_subcontracting_dropshipping.model_stock_rule
 msgid "Stock Rule"
@@ -90,19 +96,22 @@ msgstr "Skladišno pravilo"
 msgid "Subcontracting-Dropshipping MTS Rule"
 msgstr "MTS pravilo za podugovaranje - direktnu dostavu"
 
+# taken from hr.po
 #. module: mrp_subcontracting_dropshipping
 #: model:ir.model,name:mrp_subcontracting_dropshipping.model_stock_picking
 msgid "Transfer"
 msgstr "Prijenos"
 
+# taken from hr.po
 #. module: mrp_subcontracting_dropshipping
 #: model:ir.model,name:mrp_subcontracting_dropshipping.model_stock_warehouse
 msgid "Warehouse"
 msgstr "Skladište"
 
+# taken from hr.po
 #. module: mrp_subcontracting_dropshipping
 #. odoo-python
-#: code:addons/mrp_subcontracting_dropshipping/models/purchase.py:0
+#: code:addons/mrp_subcontracting_dropshipping/models/purchase.py
 #, python-format
 msgid "Warning"
 msgstr "Upozorenje"

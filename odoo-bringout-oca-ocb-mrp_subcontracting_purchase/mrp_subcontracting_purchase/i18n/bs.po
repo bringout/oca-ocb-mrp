@@ -25,6 +25,7 @@ msgstr "<span class=\"o_stat_text\">Dopuna</span>"
 msgid "<span class=\"o_stat_text\">Source PO</span>"
 msgstr "<span class=\"o_stat_text\">Izvorišna narudžba</span>"
 
+# taken from hr.po
 #. module: mrp_subcontracting_purchase
 #: model:ir.model,name:mrp_subcontracting_purchase.model_report_mrp_report_bom_structure
 msgid "BOM Overview Report"
@@ -50,6 +51,7 @@ msgstr "Broj izvorišnih narudžbi podugovaranja"
 msgid "Number of subcontracting Purchase Order Source"
 msgstr "Broj izvorišnih narudžbi podugovaranja"
 
+# taken from hr.po
 #. module: mrp_subcontracting_purchase
 #: model:ir.model,name:mrp_subcontracting_purchase.model_purchase_order
 msgid "Purchase Order"
@@ -57,16 +59,18 @@ msgstr "Nalog za nabavu"
 
 #. module: mrp_subcontracting_purchase
 #. odoo-python
-#: code:addons/mrp_subcontracting_purchase/models/stock_picking.py:0
+#: code:addons/mrp_subcontracting_purchase/models/stock_picking.py
 #, python-format
 msgid "Source PO of %s"
 msgstr "Izvorišna narudžba od %s"
 
+# taken from hr.po
 #. module: mrp_subcontracting_purchase
 #: model:ir.model,name:mrp_subcontracting_purchase.model_stock_move
 msgid "Stock Move"
 msgstr "Skladišni prijenos"
 
+# taken from hr.po
 #. module: mrp_subcontracting_purchase
 #: model:ir.model,name:mrp_subcontracting_purchase.model_stock_picking
 msgid "Transfer"
