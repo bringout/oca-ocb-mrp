@@ -55,7 +55,7 @@ msgstr "Broj izvorišnih narudžbi podugovaranja"
 #. module: mrp_subcontracting_purchase
 #: model:ir.model,name:mrp_subcontracting_purchase.model_purchase_order
 msgid "Purchase Order"
-msgstr "Nalog za nabavu"
+msgstr "Zahtjevi za nabavom"
 
 #. module: mrp_subcontracting_purchase
 #. odoo-python
@@ -68,7 +68,7 @@ msgstr "Izvorišna narudžba od %s"
 #. module: mrp_subcontracting_purchase
 #: model:ir.model,name:mrp_subcontracting_purchase.model_stock_move
 msgid "Stock Move"
-msgstr "Skladišni prijenos"
+msgstr "Skladišno kretanje"
 
 # taken from hr.po
 #. module: mrp_subcontracting_purchase

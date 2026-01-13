@@ -540,7 +540,7 @@ msgstr "Akcija"
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_bom__message_needaction
 msgid "Action Needed"
-msgstr "Potrebna akcija"
+msgstr "Potrebna radnja"
 
 # taken from hr.po
 #. module: mrp
@@ -558,7 +558,7 @@ msgstr "Aktivnosti"
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_production__activity_exception_decoration
 msgid "Activity Exception Decoration"
-msgstr "Dekoracija iznimke aktivnosti"
+msgstr "Dekoracija izuzetka aktivnosti"
 
 # taken from hr.po
 #. module: mrp
@@ -793,7 +793,7 @@ msgstr "Priloženo uz"
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_bom__message_attachment_count
 msgid "Attachment Count"
-msgstr "Broj zakački"
+msgstr "Broj priloga"
 
 # taken from hr.po
 #. module: mrp
@@ -1179,7 +1179,7 @@ msgstr "Otkaži"
 #. module: mrp
 #: model:ir.model.fields.selection,name:mrp.selection__mrp_production__state__cancel
 msgid "Cancelled"
-msgstr "Otkazan"
+msgstr "Otkazano"
 
 #. module: mrp
 #. odoo-python
@@ -1294,7 +1294,7 @@ msgstr "Izveštaj BOM strukture"
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_bom__company_id
 msgid "Company"
-msgstr "Preduzeće"
+msgstr "Kompanija"
 
 # taken from hr.po
 #. module: mrp
@@ -1375,7 +1375,7 @@ msgstr "Zadnje izračunato"
 #. module: mrp
 #: model:ir.model,name:mrp.model_res_config_settings
 msgid "Config Settings"
-msgstr "Postavke"
+msgstr "Postavke konfiguracije"
 
 # taken from hr.po
 #. module: mrp
@@ -1867,7 +1867,7 @@ msgstr "Dokumentacija"
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_stock_move__is_done
 msgid "Done"
-msgstr "Gotovo"
+msgstr "Dovršeno"
 
 # taken from hr.po
 #. module: mrp
@@ -2121,13 +2121,13 @@ msgstr "Fleksibilni utrošak"
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_bom__message_follower_ids
 msgid "Followers"
-msgstr "Pratioci"
+msgstr "Pratitelji"
 
 # taken from hr.po
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_bom__message_partner_ids
 msgid "Followers (Partners)"
-msgstr "Pratioci (Partneri)"
+msgstr "Pratitelji (partneri)"
 
 # taken from hr.po
 #. module: mrp
@@ -2265,7 +2265,7 @@ msgstr "Prikazivač Google slajdova"
 #. module: mrp
 #: model_terms:ir.ui.view,arch_db:mrp.view_mrp_production_workorder_form_view_filter
 msgid "Group By"
-msgstr "Grupiši po"
+msgstr "Grupiši po..."
 
 # taken from hr.po
 #. module: mrp
@@ -2334,7 +2334,7 @@ msgstr "Ikona"
 #. module: mrp
 #: model:ir.model.fields,help:mrp.field_mrp_production__activity_exception_icon
 msgid "Icon to indicate an exception activity."
-msgstr "Daje redosled sekvence pri prikazivanju liste MRP dokumenata."
+msgstr "Ikona za prikaz iznimki."
 
 # taken from hr.po
 #. module: mrp
@@ -2502,7 +2502,7 @@ msgstr ""
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_bom__message_is_follower
 msgid "Is Follower"
-msgstr "Je pratilac"
+msgstr "Pratilac"
 
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_product_product__is_kits
@@ -2584,19 +2584,19 @@ msgstr "Komplet"
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_change_production_qty____last_update
 msgid "Last Modified on"
-msgstr "Zadnje mijenjano"
+msgstr "Zadnja izmjena na"
 
 # taken from hr.po
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_change_production_qty__write_uid
 msgid "Last Updated by"
-msgstr "Zadnji ažurirao"
+msgstr "Zadnje ažuriranje izvršio"
 
 # taken from hr.po
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_change_production_qty__write_date
 msgid "Last Updated on"
-msgstr "Zadnje ažurirano"
+msgstr "Zadnje ažuriranje na"
 
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_workorder__last_working_user_id
@@ -3038,7 +3038,7 @@ msgstr "Greška pri isporuci poruke"
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_bom__message_ids
 msgid "Messages"
-msgstr "Poruke"
+msgstr "Nepročitane poruke"
 
 # taken from hr.po
 #. module: mrp
@@ -3603,7 +3603,7 @@ msgstr "Picking Before Manufacturing Route"
 #. module: mrp
 #: model:ir.model,name:mrp.model_stock_picking_type
 msgid "Picking Type"
-msgstr "Tip prikupljanja"
+msgstr "Vrsta dokumenta"
 
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_production__picking_ids
@@ -3740,7 +3740,7 @@ msgstr "Stavke obrađenog rastavljanja"
 #. module: mrp
 #: model:ir.model,name:mrp.model_procurement_group
 msgid "Procurement Group"
-msgstr "Grupa naručivanja"
+msgstr "Nalog za nabavu"
 
 #. module: mrp
 #: model:ir.model.fields,help:mrp.field_stock_warehouse__manufacture_steps
@@ -3997,7 +3997,7 @@ msgstr "Gubitci proizvodnje"
 #. module: mrp
 #: model:ir.actions.act_window,name:mrp.product_template_action
 msgid "Products"
-msgstr "Artikli"
+msgstr "Proizvodi"
 
 # taken from hr.po
 #. module: mrp
@@ -4771,7 +4771,7 @@ msgstr "Raspoloživost skladišta"
 #. module: mrp
 #: model:ir.model,name:mrp.model_stock_move
 msgid "Stock Move"
-msgstr "Kretanje zalihe"
+msgstr "Skladišno kretanje"
 
 # taken from hr.po
 #. module: mrp
@@ -5440,9 +5440,7 @@ msgstr "Tip operacije"
 #. module: mrp
 #: model:ir.model.fields,help:mrp.field_mrp_production__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr ""
-"Tehničko polje koje se koristi za rešavanje više priloga u multi-website "
-"okruženju."
+msgstr "Vrsta aktivnosti iznimke na zapisu."
 
 #. module: mrp
 #. odoo-python
@@ -5778,7 +5776,7 @@ msgstr "Web stranica"
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_bom__website_message_ids
 msgid "Website Messages"
-msgstr "Poruke sa website-a"
+msgstr "Nepročitane poruke"
 
 # taken from hr.po
 #. module: mrp

@@ -25,7 +25,7 @@ msgstr "Primjeni na"
 #. module: mrp_landed_costs
 #: model:ir.model.fields.selection,name:mrp_landed_costs.selection__stock_landed_cost__target_model__manufacturing
 msgid "Manufacturing Orders"
-msgstr "Nalozi za proizvodnju"
+msgstr "Proizvodni nalozi"
 
 # taken from hr.po
 #. module: mrp_landed_costs

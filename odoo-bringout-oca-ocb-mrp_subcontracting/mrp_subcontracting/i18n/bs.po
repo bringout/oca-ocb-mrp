@@ -155,7 +155,7 @@ msgstr "Prikaži komponente zapisa o akciji"
 #: code:addons/mrp_subcontracting/controllers/portal.py
 #, python-format
 msgid "Done"
-msgstr "Riješeno"
+msgstr "Dovršeno"
 
 # taken from hr.po
 #. module: mrp_subcontracting
@@ -261,7 +261,7 @@ msgstr "Obavezno"
 #. module: mrp_subcontracting
 #: model_terms:ir.ui.view,arch_db:mrp_subcontracting.subcontracting_portal_production_form_view
 msgid "Manufacturing Orders"
-msgstr "Nalozi za proizvodnju"
+msgstr "Proizvodni nalozi"
 
 # taken from hr.po
 #. module: mrp_subcontracting
@@ -475,7 +475,7 @@ msgstr "Status"
 #. module: mrp_subcontracting
 #: model:ir.model,name:mrp_subcontracting.model_stock_move
 msgid "Stock Move"
-msgstr "Skladišni prijenos"
+msgstr "Skladišno kretanje"
 
 #. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_res_partner__picking_ids
