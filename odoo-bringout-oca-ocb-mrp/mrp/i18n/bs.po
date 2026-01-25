@@ -1907,7 +1907,7 @@ msgstr "Padajući izbornik"
 #: code:addons/mrp/wizard/stock_assign_serial_numbers.py
 #, python-format
 msgid "Duplicate Serial Numbers (%s)"
-msgstr "Završeno poslednih 365 dana"
+msgstr "Duplicate Serial Numbers (%s)"
 
 # taken from hr.po
 #. module: mrp
@@ -4925,7 +4925,7 @@ msgstr ""
 #: code:addons/mrp/models/mrp_workcenter.py
 #, python-format
 msgid "The Workorder (%s) cannot be started twice!"
-msgstr "Struktura i troškovi"
+msgstr "The Workorder (%s) cannot be started twice!"
 
 #. module: mrp
 #. odoo-python
