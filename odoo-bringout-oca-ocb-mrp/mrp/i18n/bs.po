@@ -5852,8 +5852,6 @@ msgid ""
 "Wizard in case of consumption in warning/strict and more component has been "
 "used for a MO (related to the bom)"
 msgstr ""
-"[PREVOD POTREBAN: Wizard in case of consumption in warning/strict and more "
-"com...]"
 
 #. module: mrp
 #: model:ir.model,name:mrp.model_mrp_production_split_multi
@@ -6318,8 +6316,6 @@ msgid ""
 "You must indicate a non-zero amount consumed for at least one of your "
 "components"
 msgstr ""
-"[PREVOD POTREBAN: You must indicate a non-zero amount consumed for at least "
-"on...]"
 
 #. module: mrp
 #. odoo-python

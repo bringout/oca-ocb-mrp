@@ -18,7 +18,7 @@ msgstr ""
 #. module: mrp_repair
 #: model:ir.model,name:mrp_repair.model_repair_line
 msgid "Repair Line (parts)"
-msgstr "[PREVOD: Repair Line (parts)]"
+msgstr ""
 
 #. module: mrp_repair
 #: model:ir.model,name:mrp_repair.model_repair_order
