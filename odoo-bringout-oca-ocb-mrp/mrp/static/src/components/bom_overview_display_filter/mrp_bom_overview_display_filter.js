@@ -1,46 +1,33 @@
-/** @odoo-module **/
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
-
-const { Component } = owl;
+import { Component } from "@odoo/owl";
 
 export class BomOverviewDisplayFilter extends Component {
+    static template = "mrp.BomOverviewDisplayFilter";
+    static components = {
+        Dropdown,
+        DropdownItem,
+    };
+    static props = {
+        showOptions: {
+            type: Object,
+        },
+        changeDisplay: Function,
+    };
+
     setup() {
-        this.displayOptions = {
-            availabilities: this.env._t('Availabilities'),
-            leadTimes: this.env._t('Lead Times'),
-            costs: this.env._t('Costs'),
-            operations: this.env._t('Operations'),
-        };
+        this.displayOptions = {};
     }
 
     //---- Getters ----
 
     get displayableOptions() {
-        return Object.keys(this.displayOptions);
-    }
-
-    get currentDisplayedNames() {
-        return this.displayableOptions.filter(key => this.props.showOptions[key]).map(key => this.displayOptions[key]).join(", ");
+        return Object.keys(this.displayOptions).map(optionKey => ({
+            id: optionKey,
+            label: this.displayOptions[optionKey],
+            onSelected: () => this.props.changeDisplay(optionKey),
+            class: { o_menu_item: true, selected: this.props.showOptions[optionKey] },
+            closingMode: "none",
+        }));
     }
 }
-
-BomOverviewDisplayFilter.template = "mrp.BomOverviewDisplayFilter";
-BomOverviewDisplayFilter.components = {
-    Dropdown,
-    DropdownItem,
-}
-BomOverviewDisplayFilter.props = {
-    showOptions: {
-        type: Object,
-        shape: {
-            availabilities: Boolean,
-            costs: Boolean,
-            operations: Boolean,
-            leadTimes: Boolean,
-            uom: Boolean,
-            attachments: Boolean,
-        },
-    },
-    changeDisplay: Function,
-};

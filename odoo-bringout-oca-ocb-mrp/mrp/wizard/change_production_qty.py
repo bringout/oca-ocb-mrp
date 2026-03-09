@@ -14,13 +14,13 @@ class ChangeProductionQty(models.TransientModel):
         required=True, ondelete='cascade')
     product_qty = fields.Float(
         'Quantity To Produce',
-        digits='Product Unit of Measure', required=True)
+        digits='Product Unit', required=True)
 
     @api.model
     def default_get(self, fields):
         res = super(ChangeProductionQty, self).default_get(fields)
-        if 'mo_id' in fields and not res.get('mo_id') and self._context.get('active_model') == 'mrp.production' and self._context.get('active_id'):
-            res['mo_id'] = self._context['active_id']
+        if 'mo_id' in fields and not res.get('mo_id') and self.env.context.get('active_model') == 'mrp.production' and self.env.context.get('active_id'):
+            res['mo_id'] = self.env.context['active_id']
         if 'product_qty' in fields and not res.get('product_qty') and res.get('mo_id'):
             res['product_qty'] = self.env['mrp.production'].browse(res['mo_id']).product_qty
         return res
@@ -42,33 +42,22 @@ class ChangeProductionQty(models.TransientModel):
             if self._need_quantity_propagation(move, qty):
                 push_moves |= move.copy({'product_uom_qty': qty})
             else:
-                self._update_product_qty(move, qty)
+                move.write({'product_uom_qty': move.product_uom_qty + qty})
 
         if push_moves:
-            push_moves._action_confirm()._action_assign()
+            push_moves._action_confirm()
+        production.move_finished_ids._action_assign()
 
         return modification
 
     @api.model
     def _need_quantity_propagation(self, move, qty):
-        return move.move_dest_ids and not float_is_zero(qty, precision_rounding=move.product_uom.rounding)
-
-    @api.model
-    def _update_product_qty(self, move, qty):
-        move.write({'product_uom_qty': move.product_uom_qty + qty})
+        return move.move_dest_ids and not move.product_uom.is_zero(qty)
 
     def change_prod_qty(self):
-        precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
+        precision = self.env['decimal.precision'].precision_get('Product Unit')
         for wizard in self:
             production = wizard.mo_id
-            produced = sum(production.move_finished_ids.filtered(lambda m: m.product_id == production.product_id).mapped('quantity_done'))
-            if wizard.product_qty < produced:
-                format_qty = '%.{precision}f'.format(precision=precision)
-                raise UserError(_(
-                    "You have already processed %(quantity)s. Please input a quantity higher than %(minimum)s ",
-                    quantity=format_qty % produced,
-                    minimum=format_qty % produced
-                ))
             old_production_qty = production.product_qty
             new_production_qty = wizard.product_qty
 
@@ -87,8 +76,7 @@ class ChangeProductionQty(models.TransientModel):
             production._log_manufacture_exception(documents)
             self._update_finished_moves(production, new_production_qty, old_production_qty)
             production.write({'product_qty': new_production_qty})
-            if not float_is_zero(production.qty_producing, precision_rounding=production.product_uom_id.rounding) and\
-               not production.workorder_ids:
+            if not production.product_uom_id.is_zero(production.qty_producing) and not production.workorder_ids:
                 production.qty_producing = new_production_qty
                 production._set_qty_producing()
 

@@ -1,12 +1,11 @@
-/** @odoo-module **/
-
 import { registry } from "@web/core/registry";
 import { FormController } from "@web/views/form/form_controller";
 import { formView } from "@web/views/form/form_view";
 
 
-class PickingFormController extends FormController {}
-PickingFormController.template = "mrp_subcontracting.PickingFormController";
+class PickingFormController extends FormController {
+    static template = "mrp_subcontracting.PickingFormController";
+}
 
 const PickingFormView = {
     ...formView,

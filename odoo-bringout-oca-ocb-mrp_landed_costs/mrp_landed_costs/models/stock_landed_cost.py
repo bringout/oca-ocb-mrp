@@ -12,7 +12,7 @@ class StockLandedCost(models.Model):
     ], ondelete={'manufacturing': 'set default'})
     mrp_production_ids = fields.Many2many(
         'mrp.production', string='Manufacturing order',
-        copy=False, states={'done': [('readonly', True)]}, groups='stock.group_stock_manager')
+        copy=False, groups='stock.group_stock_manager')
 
     @api.onchange('target_model')
     def _onchange_target_model(self):
@@ -21,4 +21,8 @@ class StockLandedCost(models.Model):
             self.mrp_production_ids = False
 
     def _get_targeted_move_ids(self):
-        return super()._get_targeted_move_ids() | self.mrp_production_ids.move_finished_ids
+        return (
+            super()._get_targeted_move_ids()
+            | self.mrp_production_ids.move_finished_ids
+            - self.mrp_production_ids.move_byproduct_ids.filtered(lambda move: not move.cost_share)
+        )

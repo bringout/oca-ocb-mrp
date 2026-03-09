@@ -20,19 +20,16 @@ class ResCompany(models.Model):
         self._create_subcontracting_location()
 
     def _create_subcontracting_location(self):
-        parent_location = self.env.ref('stock.stock_location_locations', raise_if_not_found=False)
         for company in self:
             subcontracting_location = self.env['stock.location'].create({
-                'name': _('Subcontracting Location'),
+                'name': _('Subcontracting'),
                 'usage': 'internal',
-                'location_id': parent_location.id,
                 'company_id': company.id,
-                'is_subcontracting_location': True,
             })
-            self.env['ir.property']._set_default(
-                "property_stock_subcontractor",
+            self.env['ir.default'].set(
                 "res.partner",
-                subcontracting_location,
-                company,
+                "property_stock_subcontractor",
+                subcontracting_location.id,
+                company_id=company.id,
             )
             company.subcontracting_location_id = subcontracting_location
