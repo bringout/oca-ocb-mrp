@@ -59,7 +59,7 @@ msgstr "Nalog za nabavu"
 
 #. module: mrp_subcontracting_purchase
 #. odoo-python
-#: code:addons/mrp_subcontracting_purchase/models/stock_picking.py
+#: code:addons/mrp_subcontracting_purchase/models/stock_picking.py:0
 #, python-format
 msgid "Source PO of %s"
 msgstr "Izvorišna narudžba od %s"
@@ -75,3 +75,63 @@ msgstr "Skladišni prijenos"
 #: model:ir.model,name:mrp_subcontracting_purchase.model_stock_picking
 msgid "Transfer"
 msgstr "Prijenos"
+
+#. module: mrp_subcontracting_purchase
+#: code:addons/mrp_subcontracting_purchase/models/stock_move.py:0
+msgid "%(value)s for %(quantity)s %(unit)s from %(production)s"
+msgstr "%(value)s za %(quantity)s %(unit)s iz %(production)s"
+
+#. module: mrp_subcontracting_purchase
+#: code:addons/mrp_subcontracting_purchase/models/stock_rule.py:0
+msgid "+ %d day(s)"
+msgstr "+ %d dan(a)"
+
+#. module: mrp_subcontracting_purchase
+#: code:addons/mrp_subcontracting_purchase/models/stock_rule.py:0
+msgid "Days to Supply Components"
+msgstr "Dani za isporuku komponenti"
+
+#. module: mrp_subcontracting_purchase
+#: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_account_move_line__display_name
+msgid "Display Name"
+msgstr "Naziv za prikaz"
+
+#. module: mrp_subcontracting_purchase
+#: model:ir.model.fields,field_description:mrp_subcontracting_purchase.field_account_move_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: mrp_subcontracting_purchase
+#: model:ir.model,name:mrp_subcontracting_purchase.model_account_move_line
+msgid "Journal Item"
+msgstr "Stavka dnevnika"
+
+#. module: mrp_subcontracting_purchase
+#: code:addons/mrp_subcontracting_purchase/models/stock_rule.py:0
+msgid "Manufacturing Lead Time"
+msgstr "Vrijeme proizvodnje"
+
+#. module: mrp_subcontracting_purchase
+#: model:ir.model,name:mrp_subcontracting_purchase.model_product_product
+msgid "Product Variant"
+msgstr "Varijanta proizvoda"
+
+#. module: mrp_subcontracting_purchase
+#: code:addons/mrp_subcontracting_purchase/models/stock_rule.py:0
+msgid "Production Start Date"
+msgstr "Datum početka proizvodnje"
+
+#. module: mrp_subcontracting_purchase
+#: code:addons/mrp_subcontracting_purchase/models/stock_rule.py:0
+msgid "Receipt Date"
+msgstr "Datum prijema"
+
+#. module: mrp_subcontracting_purchase
+#: model:ir.model,name:mrp_subcontracting_purchase.model_stock_rule
+msgid "Stock Rule"
+msgstr "Pravilo zaliha"
+
+#. module: mrp_subcontracting_purchase
+#: code:addons/mrp_subcontracting_purchase/models/stock_rule.py:0
+msgid "Vendor Lead Time"
+msgstr "Vrijeme isporuke dobavljača"

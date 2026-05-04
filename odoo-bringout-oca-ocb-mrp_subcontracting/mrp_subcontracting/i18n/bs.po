@@ -18,10 +18,10 @@ msgstr ""
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/controllers/portal.py
+#: code:addons/mrp_subcontracting/controllers/portal.py:0
 #, python-format
 msgid "All"
-msgstr "Sve"
+msgstr "Svi"
 
 # taken from hr.po
 #. module: mrp_subcontracting
@@ -150,7 +150,7 @@ msgstr "Prikaži komponente zapisa o akciji"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/controllers/portal.py
+#: code:addons/mrp_subcontracting/controllers/portal.py:0
 #, python-format
 msgid "Done"
 msgstr "Riješeno"
@@ -175,7 +175,7 @@ msgstr "Sakrij"
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_location.py
+#: code:addons/mrp_subcontracting/models/stock_location.py:0
 #, python-format
 msgid ""
 "In order to manage stock accurately, subcontracting locations must be type "
@@ -217,7 +217,7 @@ msgstr ""
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_picking.py
+#: code:addons/mrp_subcontracting/models/stock_picking.py:0
 #, python-format
 msgid "Locations to update"
 msgstr ""
@@ -231,14 +231,14 @@ msgstr "Proizvodni nalozi na kojima je partner podizvođač"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_warehouse.py
+#: code:addons/mrp_subcontracting/models/stock_warehouse.py:0
 #, python-format
 msgid "Make To Order"
 msgstr "Kreiraj narudžbu - MTO"
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_move_line.py
+#: code:addons/mrp_subcontracting/models/stock_move_line.py:0
 #, python-format
 msgid ""
 "Make sure you validate or adapt the related resupply picking to your "
@@ -253,7 +253,7 @@ msgstr "Obavezno"
 
 # taken from hr.po
 #. module: mrp_subcontracting
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.subcontracting_portal_production_form_view
+#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.portal_my_home_productions
 msgid "Manufacturing Orders"
 msgstr "Nalozi za proizvodnju"
 
@@ -271,7 +271,7 @@ msgstr "Stavka premještanja bez prijedloga"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/controllers/portal.py
+#: code:addons/mrp_subcontracting/controllers/portal.py:0
 #, python-format
 msgid "Name"
 msgstr "Naziv"
@@ -279,7 +279,7 @@ msgstr "Naziv"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/controllers/portal.py
+#: code:addons/mrp_subcontracting/controllers/portal.py:0
 #, python-format
 msgid "Newest"
 msgstr "Najnoviji"
@@ -287,7 +287,7 @@ msgstr "Najnoviji"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_picking.py
+#: code:addons/mrp_subcontracting/models/stock_picking.py:0
 #, python-format
 msgid "Nothing to record"
 msgstr "Ništa za ubilježiti"
@@ -295,7 +295,7 @@ msgstr "Ništa za ubilježiti"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_quant.py
+#: code:addons/mrp_subcontracting/models/stock_quant.py:0
 #, python-format
 msgid "Operation not supported"
 msgstr "Operacija nije podržana"
@@ -316,12 +316,12 @@ msgstr "Operacije bez paketa"
 #. module: mrp_subcontracting
 #: model_terms:ir.ui.view,arch_db:mrp_subcontracting.portal_my_productions
 msgid "Order"
-msgstr "Narudžba"
+msgstr "Nalog"
 
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_move.py
+#: code:addons/mrp_subcontracting/models/stock_move.py:0
 #, python-format
 msgid ""
 "Portal users cannot create a stock move with a state 'Done' or change the "
@@ -363,7 +363,7 @@ msgstr "Količine"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_move.py
+#: code:addons/mrp_subcontracting/models/stock_move.py:0
 #, python-format
 msgid "Raw Materials for %s"
 msgstr "Sirovine zar %s"
@@ -371,7 +371,7 @@ msgstr "Sirovine zar %s"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/controllers/portal.py
+#: code:addons/mrp_subcontracting/controllers/portal.py:0
 #, python-format
 msgid "Ready"
 msgstr "Spremno"
@@ -389,7 +389,7 @@ msgid "Record components"
 msgstr "Bilježi komponente"
 
 #. module: mrp_subcontracting
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.stock_picking_form_view
+#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.subcontracting_portal_production_form_view
 msgid "Register components for subcontracted product"
 msgstr ""
 
@@ -402,7 +402,7 @@ msgstr "Rezervisano"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_warehouse.py
+#: code:addons/mrp_subcontracting/models/stock_warehouse.py:0
 #, python-format
 msgid "Resupply Subcontractor"
 msgstr "Opskrbi podizvođača"
@@ -410,7 +410,7 @@ msgstr "Opskrbi podizvođača"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_warehouse.py
+#: code:addons/mrp_subcontracting/models/stock_warehouse.py:0
 #, python-format
 msgid "Resupply Subcontractor on Order"
 msgstr "Dostavi podizvođaču po narudžbi"
@@ -435,7 +435,7 @@ msgstr "Planirani datum"
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_warehouse.py
+#: code:addons/mrp_subcontracting/models/stock_warehouse.py:1
 #, python-format
 msgid "Sequence Resupply Subcontractor"
 msgstr "Sekvenca dostave podizvođaču"
@@ -443,7 +443,7 @@ msgstr "Sekvenca dostave podizvođaču"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_warehouse.py
+#: code:addons/mrp_subcontracting/models/stock_warehouse.py:0
 #, python-format
 msgid "Sequence subcontracting"
 msgstr "Sekvenca podizvođača"
@@ -485,7 +485,7 @@ msgstr "Skladišno pravilo"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_move.py
+#: code:addons/mrp_subcontracting/models/stock_move.py:0
 #, python-format
 msgid "Subcontract"
 msgstr "Podugovor"
@@ -504,7 +504,7 @@ msgstr "Podugovoreno"
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/mrp_production.py
+#: code:addons/mrp_subcontracting/models/mrp_production.py:0
 #, python-format
 msgid "Subcontracted manufacturing orders cannot be merged."
 msgstr ""
@@ -512,7 +512,7 @@ msgstr ""
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_warehouse.py
+#: code:addons/mrp_subcontracting/models/res_company.py:0
 #, python-format
 msgid "Subcontracting"
 msgstr "Podizvođač"
@@ -520,7 +520,7 @@ msgstr "Podizvođač"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/res_company.py
+#: model:ir.model.fields,field_description:mrp_subcontracting.field_res_company__subcontracting_location_id
 #, python-format
 msgid "Subcontracting Location"
 msgstr "Lokacija kooperanta"
@@ -560,14 +560,14 @@ msgstr "Tip operacije za dopunu zaliha podugovaranja"
 
 #. module: mrp_subcontracting
 #. odoo-javascript
-#: code:addons/mrp_subcontracting/static/src/components/bom_overview_special_line/mrp_bom_overview_special_line.xml
+#: code:addons/mrp_subcontracting/static/src/components/bom_overview_special_line/mrp_bom_overview_special_line.xml:0
 #, python-format
 msgid "Subcontracting:"
 msgstr ""
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/report/mrp_report_bom_structure.py
+#: code:addons/mrp_subcontracting/report/mrp_report_bom_structure.py:0
 #, python-format
 msgid "Subcontracting: %s"
 msgstr ""
@@ -617,7 +617,7 @@ msgstr ""
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_picking.py
+#: code:addons/mrp_subcontracting/models/stock_picking.py:0
 #, python-format
 msgid ""
 "There shouldn't be multiple productions to record for the same subcontracted"
@@ -626,14 +626,14 @@ msgstr ""
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/mrp_production.py
+#: code:addons/mrp_subcontracting/models/mrp_production.py:0
 #, python-format
 msgid "This MO isn't related to a subcontracted move"
 msgstr ""
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_move.py
+#: code:addons/mrp_subcontracting/models/stock_move.py:0
 #, python-format
 msgid "To subcontract, use a planned transfer."
 msgstr ""
@@ -677,7 +677,7 @@ msgstr ""
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/mrp_bom.py
+#: code:addons/mrp_subcontracting/models/mrp_bom.py:0
 #, python-format
 msgid ""
 "You can not set a Bill of Material with operations or by-product line as "
@@ -686,21 +686,21 @@ msgstr ""
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_location.py
+#: code:addons/mrp_subcontracting/models/stock_location.py:0
 #, python-format
 msgid "You cannot alter the company's subcontracting location"
 msgstr ""
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/mrp_production.py
+#: code:addons/mrp_subcontracting/models/mrp_production.py:0
 #, python-format
 msgid "You cannot write on fields %s in mrp.production."
 msgstr ""
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/stock_picking.py
+#: code:addons/mrp_subcontracting/models/stock_picking.py:0
 #, python-format
 msgid "You might want to update the locations of this transfer's operations"
 msgstr "Možda biste željeli ažurirati lokacije operacija ovog prijenosa"
@@ -708,7 +708,7 @@ msgstr "Možda biste željeli ažurirati lokacije operacija ovog prijenosa"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/mrp_production.py
+#: code:addons/mrp_subcontracting/models/mrp_production.py:0
 #, python-format
 msgid "You must enter a serial number for %s"
 msgstr "Potrebno je upisati serijski broj za %s"
@@ -716,14 +716,14 @@ msgstr "Potrebno je upisati serijski broj za %s"
 # taken from hr.po
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/mrp_production.py
+#: code:addons/mrp_subcontracting/models/mrp_production.py:0
 #, python-format
 msgid "You must enter a serial number for each line of %s"
 msgstr "Potrebno je upisati serijski broj za svaku stavku %s"
 
 #. module: mrp_subcontracting
 #. odoo-python
-#: code:addons/mrp_subcontracting/models/mrp_production.py
+#: code:addons/mrp_subcontracting/models/mrp_production.py:0
 #, python-format
 msgid ""
 "You must indicate a non-zero amount consumed for at least one of your "
@@ -735,3 +735,101 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:mrp_subcontracting.subcontracting_portal_production_form_view
 msgid "e.g. PO0032"
 msgstr "npr. PO0032"
+
+#. module: mrp_subcontracting
+#: code:addons/mrp_subcontracting/models/stock_warehouse.py:0
+msgid "%(name)s Sequence Resupply Subcontractor"
+msgstr "%(name)s sekvenca dopune podizvođaču"
+
+#. module: mrp_subcontracting
+#: code:addons/mrp_subcontracting/models/stock_warehouse.py:0
+msgid "%(name)s Sequence subcontracting"
+msgstr "%(name)s sekvenca podizvođenja"
+
+#. module: mrp_subcontracting
+#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.subcontracting_portal
+msgid "/my/productions"
+msgstr "/my/productions"
+
+#. module: mrp_subcontracting
+#: model:ir.model,name:mrp_subcontracting.model_mrp_production_serials
+msgid "Assign serial numbers to production order"
+msgstr "Dodijeli serijske brojeve proizvodnom nalogu"
+
+#. module: mrp_subcontracting
+#: code:addons/mrp_subcontracting/static/src/components/subcontracting_production_form_controller.js:0
+msgid "Check Availability"
+msgstr "Provjeri dostupnost"
+
+#. module: mrp_subcontracting
+#: code:addons/mrp_subcontracting/static/src/components/subcontracting_production_form_controller.js:0
+msgid "Create New Production"
+msgstr "Kreiraj novu proizvodnju"
+
+#. module: mrp_subcontracting
+#: model:ir.model,website_form_label:mrp_subcontracting.model_res_partner
+msgid "Create a Customer"
+msgstr "Kreiraj kupca"
+
+#. module: mrp_subcontracting
+#: model:ir.model.fields,field_description:mrp_subcontracting.field_change_production_qty__display_name
+msgid "Display Name"
+msgstr "Naziv za prikaz"
+
+#. module: mrp_subcontracting
+#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.portal_my_home_productions
+msgid "Follow manufacturing orders you have to fulfill"
+msgstr "Pratite proizvodne naloge koje trebate ispuniti"
+
+#. module: mrp_subcontracting
+#: model:ir.model.fields,field_description:mrp_subcontracting.field_change_production_qty__id
+msgid "ID"
+msgstr "ID"
+
+#. module: mrp_subcontracting
+#: model:ir.model,name:mrp_subcontracting.model_mrp_production
+msgid "Manufacturing Order"
+msgstr "Proizvodni nalog"
+
+#. module: mrp_subcontracting
+#: code:addons/mrp_subcontracting/models/mrp_production.py:0
+msgid ""
+"Please set a lot/serial for the currently opened subcontracting MO first."
+msgstr ""
+"Molimo prvo postavite lot/serijski broj za trenutno otvoreni proizvodni "
+"nalog podizvođenja."
+
+#. module: mrp_subcontracting
+#: code:addons/mrp_subcontracting/models/stock_warehouse.py:0
+msgid "Replenish on Order (MTO)"
+msgstr "Dopuna po narudžbi (MTO)"
+
+#. module: mrp_subcontracting
+#: model:ir.model,name:mrp_subcontracting.model_stock_return_picking_line
+msgid "Return Picking Line"
+msgstr "Stavka preuzimanja povrata"
+
+#. module: mrp_subcontracting
+#: code:addons/mrp_subcontracting/models/stock_move.py:0
+msgid "Subcontracting MOs"
+msgstr "Proizvodni nalozi podizvođenja"
+
+#. module: mrp_subcontracting
+#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.stock_picking_form_view
+msgid "Subcontracting Productions"
+msgstr "Proizvodnje podizvođenja"
+
+#. module: mrp_subcontracting
+#: code:addons/mrp_subcontracting/models/mrp_production.py:0
+msgid "The subcontracted goods have already been received."
+msgstr "Roba podizvođenja je već primljena."
+
+#. module: mrp_subcontracting
+#: code:addons/mrp_subcontracting/models/mrp_unbuild.py:0
+msgid "You can't unbuild a subcontracted Manufacturing Order."
+msgstr "Ne možete rastaviti proizvodni nalog podizvođenja."
+
+#. module: mrp_subcontracting
+#: code:addons/mrp_subcontracting/controllers/portal.py:0
+msgid "state"
+msgstr "status"
