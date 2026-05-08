@@ -4,10 +4,9 @@ from freezegun import freeze_time
 
 from . import common
 from odoo import Command
-from odoo.tests import Form, tagged
+from odoo.tests import Form
 
 
-@tagged('-at_install', 'post_install')
 class TestWorkcenterOverview(common.TestMrpCommon):
 
     @freeze_time('2020-03-13')  # Friday
@@ -15,9 +14,8 @@ class TestWorkcenterOverview(common.TestMrpCommon):
         fake_bom = self.env['mrp.bom'].create({
             'product_id': self.product_2.id,
             'product_tmpl_id': self.product_2.product_tmpl_id.id,
-            'product_uom_id': self.uom_unit.id,
+            'uom_id': self.uom_unit.id,
             'product_qty': 1.0,
-            'consumption': 'flexible',
             'operation_ids': [
                 Command.create({
                     'name': 'Make it look you are working',
