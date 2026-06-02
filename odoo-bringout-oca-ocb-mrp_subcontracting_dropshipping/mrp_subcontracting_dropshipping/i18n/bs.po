@@ -30,7 +30,7 @@ msgstr ""
 #. module: mrp_subcontracting_dropshipping
 #: model:ir.model,name:mrp_subcontracting_dropshipping.model_res_company
 msgid "Companies"
-msgstr "Tvrtke"
+msgstr "Kompanije"
 
 #. module: mrp_subcontracting_dropshipping
 #: model:ir.model.fields,field_description:mrp_subcontracting_dropshipping.field_res_company__dropship_subcontractor_pick_type_id
@@ -135,3 +135,8 @@ msgstr "ID"
 #: model:ir.model,name:mrp_subcontracting_dropshipping.model_stock_replenish_mixin
 msgid "Product Replenish Mixin"
 msgstr "Mixin dopune proizvoda"
+
+#. module: mrp_subcontracting_dropshipping
+#: model:ir.model,name:mrp_subcontracting_dropshipping.model_res_company
+msgid "Company"
+msgstr ""

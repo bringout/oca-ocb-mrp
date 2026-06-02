@@ -48,3 +48,13 @@ msgstr "Naziv za prikaz"
 #: model:ir.model.fields,field_description:mrp_landed_costs.field_stock_landed_cost__id
 msgid "ID"
 msgstr "ID"
+
+#. module: mrp_landed_costs
+#: model_terms:ir.ui.view,arch_db:mrp_landed_costs.view_mrp_landed_costs_form
+msgid "Manufacturing"
+msgstr "Proizvodnja"
+
+#. module: mrp_landed_costs
+#: model:ir.model.fields,field_description:mrp_landed_costs.field_stock_landed_cost__mrp_productions_count
+msgid "Mrp Productions Count"
+msgstr ""
