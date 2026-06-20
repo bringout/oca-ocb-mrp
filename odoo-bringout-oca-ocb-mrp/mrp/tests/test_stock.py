@@ -83,6 +83,112 @@ class TestWarehouseMrp(common.TestMrpCommon):
         self.assertTrue(self.warehouse_1.manu_type_id.active)
         self.assertIn(manu_route, warehouse_1_stock_manager._get_all_routes())
 
+    def test_manufacturing_rule_other_dest(self):
+        """ Ensures that a manufacturing rule can define a destination the rule itself and have it
+            applied instead of the one from the operation type if location_dest_from_rule is set.
+        """
+        freezer_loc = self.env['stock.location'].create({
+            'name': 'Freezer',
+            'location_id': self.warehouse_1.view_location_id.id,
+        })
+        route = self.env['stock.route'].create({
+            'name': 'Manufacture then freeze',
+            'rule_ids': [
+                Command.create({
+                    'name': 'Freezer -> Stock',
+                    'action': 'pull',
+                    'procure_method': 'make_to_order',
+                    'picking_type_id': self.warehouse_1.int_type_id.id,
+                    'location_src_id': freezer_loc.id,
+                    'location_dest_id': self.warehouse_1.lot_stock_id.id,
+                    'location_dest_from_rule': True,
+                }),
+                Command.create({
+                    'name': 'Manufacture',
+                    'action': 'manufacture',
+                    'picking_type_id': self.warehouse_1.manu_type_id.id,
+                    'location_src_id': self.warehouse_1.lot_stock_id.id,
+                    'location_dest_id': freezer_loc.id,
+                    'location_dest_from_rule': True,
+                }),
+            ],
+        })
+        # Remove the classic Manufacture route if it exists and replace it by the new one
+        self.product_4.route_ids = [
+            Command.link(route.id),
+            Command.unlink(self.warehouse_1.manufacture_pull_id.id),
+        ]
+
+        # Create a procurement to resupply the Stock, taking from the Freezer.
+        pgroup = self.env['procurement.group'].create({'name': 'test-manu-to-freeze'})
+        self.env['procurement.group'].run([
+            pgroup.Procurement(
+                self.product_4,
+                5.0,
+                self.product_4.uom_id,
+                self.warehouse_1.lot_stock_id,
+                'test_other_dest',
+                'test_other_dest',
+                self.warehouse_1.company_id,
+                {
+                    'warehouse_id': self.warehouse_1,
+                    'group_id': pgroup,
+                }
+            )
+        ])
+
+        # Make sure the production is delivering the goods in the location set on the rule.
+        production = self.env['mrp.production'].search([('product_id', '=', self.product_4.id)])
+        self.assertEqual(len(production), 1)
+        self.assertEqual(production.picking_type_id.default_location_dest_id, self.warehouse_1.lot_stock_id)
+        self.assertEqual(production.location_dest_id, freezer_loc)
+
+    def test_multi_warehouse_resupply(self):
+        """ test a multi warehouse flow give a correct date delay
+            product_6 is sold from warehouse_1, its component (product_4) is
+            resupplied from warehouse_2 and manufactured in warehouse_2.
+            Everything in mto """
+
+        mto = self.env.ref('stock.route_warehouse0_mto')
+        mto.active = True
+        warehouse_2 = self.env['stock.warehouse'].create({
+            'name': 'Warehouse 2',
+            'code': 'WH2',
+        })
+        # product 4 can only be manufacture in WH2
+        self.bom_1.picking_type_id = warehouse_2.manu_type_id
+
+        self.warehouse_1.manufacture_steps = "pbm"
+        self.warehouse_1.resupply_wh_ids = [(6, 0, [warehouse_2.id])]
+        self.product_6.route_ids = [(6, 0, [
+            self.env.ref('mrp.route_warehouse0_manufacture').id,
+            mto.id,
+        ])]
+        self.product_4.route_ids = [(6, 0, [
+            self.warehouse_1.resupply_route_ids.id,
+            self.env.ref('stock.route_warehouse0_mto').id,
+            mto.id,
+        ])]
+        warehouse_2.resupply_route_ids.rule_ids.procure_method = 'make_to_order'
+        customer_location = self.env.ref('stock.stock_location_customers')
+        pg = self.env['procurement.group'].create({'name': 'Test-pg-mtso-mto'})
+
+        self.env['procurement.group'].run([
+            pg.Procurement(
+                self.product_6,
+                5.0,
+                self.product_6.uom_id,
+                customer_location,
+                'test_ressuply',
+                'test_ressuply',
+                self.warehouse_1.company_id,
+                {
+                    'warehouse_id': self.warehouse_1,
+                    'group_id': pg,
+                },
+            ),
+        ])
+
     def test_manufacturing_scrap(self):
         """
             Testing to do a scrap of consumed material.
@@ -100,12 +206,10 @@ class TestWarehouseMrp(common.TestMrpCommon):
         lot_product_4 = self.env['stock.lot'].create({
             'name': '0000000000001',
             'product_id': self.product_4.id,
-            'company_id': self.env.company.id,
         })
         lot_product_2 = self.env['stock.lot'].create({
             'name': '0000000000002',
             'product_id': self.product_2.id,
-            'company_id': self.env.company.id,
         })
 
         # Inventory for Stick
@@ -147,7 +251,7 @@ class TestWarehouseMrp(common.TestMrpCommon):
         # Scrap Product Wood with lot.
         scrap_id = self.env['stock.scrap'].with_context(active_model='mrp.production', active_id=production_3.id).create({'product_id': self.product_2.id, 'scrap_qty': 1.0, 'product_uom_id': self.product_2.uom_id.id, 'location_id': location_id, 'lot_id': lot_product_2.id, 'production_id': production_3.id})
         scrap_id.do_scrap()
-        scrap_move = scrap_id.move_id
+        scrap_move = scrap_id.move_ids[0]
 
         self.assertTrue(scrap_move.raw_material_production_id)
         self.assertTrue(scrap_move.scrapped)
@@ -167,7 +271,7 @@ class TestWarehouseMrp(common.TestMrpCommon):
         """
         self.laptop.tracking = 'serial'
         mo_laptop = self.new_mo_laptop()
-        serial = self.env['stock.lot'].create({'product_id': self.laptop.id, 'company_id': self.env.company.id})
+        serial = self.env['stock.lot'].create({'product_id': self.laptop.id})
 
         mo_form = Form(mo_laptop)
         mo_form.qty_producing = 1
@@ -186,7 +290,7 @@ class TestWarehouseMrp(common.TestMrpCommon):
         warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
         warehouse.write({'manufacture_steps': 'pbm'})
 
-        self.product_1.type = 'product'
+        self.product_1.is_storable = True
         self.env['stock.quant']._update_available_quantity(self.product_1, self.stock_location, 100)
 
         mo_form = Form(self.env['mrp.production'])
@@ -199,21 +303,26 @@ class TestWarehouseMrp(common.TestMrpCommon):
 
         picking = mo.picking_ids
         picking.move_line_ids.write({
-            'qty_done': 20,
+            'quantity': 20,
             'result_package_id': package.id,
         })
 
-        res_dict = picking.button_validate()
-        wizard = Form(self.env[res_dict['res_model']].with_context(res_dict['context'])).save()
-        wizard.process()
+        Form.from_action(self.env, picking.button_validate()).save().process()
 
         backorder = picking.backorder_ids
-        backorder.move_line_ids.qty_done = 80
+        backorder.move_line_ids.quantity = 80
         backorder.button_validate()
 
         self.assertEqual(picking.state, 'done')
         self.assertEqual(backorder.state, 'done')
-        self.assertEqual(mo.move_raw_ids.move_line_ids.mapped('reserved_qty'), [20, 80])
+        self.assertEqual(mo.move_raw_ids.move_line_ids.mapped('quantity_product_uom'), [20, 80])
+
+    def test_produce_with_zero_available_qty(self):
+        """ Test that producing with 0 qty_available for the component
+        still links the stock.move.line to the production order. """
+        mo, *_ = self.generate_mo()
+        mo.button_mark_done()
+        self.assertEqual(mo.move_raw_ids.move_line_ids.production_id, mo)
 
     def test_unarchive_mto_route_active_needed_rules_only(self):
         """ Ensure that activating a route will activate only its relevant rules.
@@ -258,7 +367,7 @@ class TestKitPicking(common.TestMrpCommon):
         def create_product(name):
             p = Form(cls.env['product.product'])
             p.name = name
-            p.detailed_type = 'product'
+            p.is_storable = True
             return p.save()
 
         # Create a kit 'kit_parent' :
@@ -282,13 +391,13 @@ class TestKitPicking(common.TestMrpCommon):
         component_f = create_product('Comp F')
         component_g = create_product('Comp G')
         # Creating all kits
-        kit_1 = create_product('Kit 1')
-        kit_2 = create_product('Kit 2')
-        kit_3 = create_product('kit 3')
+        cls.kit_1 = create_product('Kit 1')
+        cls.kit_2 = create_product('Kit 2')
+        cls.kit_3 = create_product('kit 3')
         cls.kit_parent = create_product('Kit Parent')
         # Linking the kits and the components via some 'phantom' BoMs
         bom_kit_1 = cls.env['mrp.bom'].create({
-            'product_tmpl_id': kit_1.product_tmpl_id.id,
+            'product_tmpl_id': cls.kit_1.product_tmpl_id.id,
             'product_qty': 1.0,
             'type': 'phantom'})
         BomLine = cls.env['mrp.bom.line']
@@ -305,7 +414,7 @@ class TestKitPicking(common.TestMrpCommon):
             'product_qty': 3.0,
             'bom_id': bom_kit_1.id})
         bom_kit_2 = cls.env['mrp.bom'].create({
-            'product_tmpl_id': kit_2.product_tmpl_id.id,
+            'product_tmpl_id': cls.kit_2.product_tmpl_id.id,
             'product_qty': 1.0,
             'type': 'phantom'})
         BomLine.create({
@@ -313,7 +422,7 @@ class TestKitPicking(common.TestMrpCommon):
             'product_qty': 1.0,
             'bom_id': bom_kit_2.id})
         BomLine.create({
-            'product_id': kit_1.id,
+            'product_id': cls.kit_1.id,
             'product_qty': 2.0,
             'bom_id': bom_kit_2.id})
         bom_kit_parent = cls.env['mrp.bom'].create({
@@ -325,11 +434,11 @@ class TestKitPicking(common.TestMrpCommon):
             'product_qty': 1.0,
             'bom_id': bom_kit_parent.id})
         BomLine.create({
-            'product_id': kit_2.id,
+            'product_id': cls.kit_2.id,
             'product_qty': 2.0,
             'bom_id': bom_kit_parent.id})
         bom_kit_3 = cls.env['mrp.bom'].create({
-            'product_tmpl_id': kit_3.product_tmpl_id.id,
+            'product_tmpl_id': cls.kit_3.product_tmpl_id.id,
             'product_qty': 1.0,
             'type': 'phantom'})
         BomLine.create({
@@ -341,7 +450,7 @@ class TestKitPicking(common.TestMrpCommon):
             'product_qty': 2.0,
             'bom_id': bom_kit_3.id})
         BomLine.create({
-            'product_id': kit_3.id,
+            'product_id': cls.kit_3.id,
             'product_qty': 1.0,
             'bom_id': bom_kit_parent.id})
 
@@ -366,7 +475,7 @@ class TestKitPicking(common.TestMrpCommon):
         }
 
     def test_kit_immediate_transfer(self):
-        """ Make sure a kit is split in the corrects quantity_done by components in case of an
+        """ Make sure a kit is split in the corrects quantity by components in case of an
         immediate transfer.
         """
         picking = self.env['stock.picking'].create({
@@ -374,12 +483,12 @@ class TestKitPicking(common.TestMrpCommon):
             'location_dest_id': self.warehouse_1.wh_input_stock_loc_id.id,
             'partner_id': self.test_partner.id,
             'picking_type_id': self.env.ref('stock.picking_type_in').id,
-            'immediate_transfer': True
         })
-        move_receipt_1 = self.env['stock.move'].create({
+        self.env['stock.move'].create({
             'name': self.kit_parent.name,
             'product_id': self.kit_parent.id,
-            'quantity_done': 3,
+            'quantity': 3,
+            'picked': True,
             'product_uom': self.kit_parent.uom_id.id,
             'picking_id': picking.id,
             'picking_type_id': self.env.ref('stock.picking_type_in').id,
@@ -390,8 +499,9 @@ class TestKitPicking(common.TestMrpCommon):
 
         # We check that the picking has the correct quantities after its move were splitted.
         self.assertEqual(len(picking.move_ids), 7)
-        for move_line in picking.move_ids:
-            self.assertEqual(move_line.quantity_done, self.expected_quantities[move_line.product_id])
+        for move in picking.move_ids:
+            self.assertEqual(move.quantity, self.expected_quantities[move.product_id])
+            self.assertEqual(move.state, 'done')
 
     def test_kit_planned_transfer(self):
         """ Make sure a kit is split in the corrects product_qty by components in case of a
@@ -402,7 +512,6 @@ class TestKitPicking(common.TestMrpCommon):
             'location_dest_id': self.warehouse_1.wh_input_stock_loc_id.id,
             'partner_id': self.test_partner.id,
             'picking_type_id': self.env.ref('stock.picking_type_in').id,
-            'immediate_transfer': False,
         })
         move_receipt_1 = self.env['stock.move'].create({
             'name': self.kit_parent.name,
@@ -430,7 +539,7 @@ class TestKitPicking(common.TestMrpCommon):
         self.bom_4.type = 'phantom'
         kit = self.bom_4.product_id
         compo = self.bom_4.bom_line_ids.product_id
-        product = self.env['product.product'].create({'name': 'Super Product', 'type': 'product'})
+        product = self.env['product.product'].create({'name': 'Super Product', 'is_storable': True})
 
         receipt = self.env['stock.picking'].create({
             'picking_type_id': in_type.id,
@@ -447,21 +556,22 @@ class TestKitPicking(common.TestMrpCommon):
         })
         receipt.action_confirm()
 
-        receipt.move_line_ids.qty_done = 1
+        receipt.move_line_ids.quantity = 1
         receipt.move_line_ids = [(0, 0, {
             'product_id': kit.id,
-            'qty_done': 1,
+            'quantity': 1,
             'product_uom_id': kit.uom_id.id,
             'location_id': customer_location.id,
             'location_dest_id': stock_location.id,
         })]
+        receipt.move_ids.picked = True
 
         receipt.button_validate()
 
         self.assertEqual(receipt.state, 'done')
         self.assertRecordValues(receipt.move_ids, [
-            {'product_id': product.id, 'quantity_done': 1, 'state': 'done'},
-            {'product_id': compo.id, 'quantity_done': 1, 'state': 'done'},
+            {'product_id': product.id, 'quantity': 1, 'state': 'done'},
+            {'product_id': compo.id, 'quantity': 1, 'state': 'done'},
         ])
 
     def test_move_line_aggregated_product_quantities_with_kit(self):
@@ -471,7 +581,7 @@ class TestKitPicking(common.TestMrpCommon):
         uom_unit = self.env.ref('uom.product_uom_unit')
         kit, kit_component_1, kit_component_2, not_kit_1, not_kit_2 = self.env['product.product'].create([{
             'name': name,
-            'type': 'product',
+            'is_storable': True,
             'uom_id': uom_unit.id,
         } for name in ['Kit', 'Kit Component 1', 'Kit Component 2', 'Not Kit 1', 'Not Kit 2']])
 
@@ -507,18 +617,221 @@ class TestKitPicking(common.TestMrpCommon):
         delivery = delivery_form.save()
         delivery.action_confirm()
 
-        delivery.move_line_ids.filtered(lambda ml: ml.product_id == kit_component_1).qty_done = 3
-        delivery.move_line_ids.filtered(lambda ml: ml.product_id == kit_component_2).qty_done = 3
-        delivery.move_line_ids.filtered(lambda ml: ml.product_id == not_kit_1).qty_done = 4
-        delivery.move_line_ids.filtered(lambda ml: ml.product_id == not_kit_2).qty_done = 2
+        delivery.move_line_ids.filtered(lambda ml: ml.product_id == kit_component_1).quantity = 3
+        delivery.move_line_ids.filtered(lambda ml: ml.product_id == kit_component_2).quantity = 3
+        delivery.move_line_ids.filtered(lambda ml: ml.product_id == not_kit_1).quantity = 4
+        delivery.move_line_ids.filtered(lambda ml: ml.product_id == not_kit_2).quantity = 2
         backorder_wizard_dict = delivery.button_validate()
-        backorder_wizard_form = Form(self.env[backorder_wizard_dict['res_model']].with_context(backorder_wizard_dict['context']))
+        backorder_wizard_form = Form.from_action(self.env, backorder_wizard_dict)
         backorder_wizard_form.save().process_cancel_backorder()
 
         aggregate_not_kit_values = delivery.move_line_ids._get_aggregated_product_quantities()
         self.assertEqual(len(aggregate_not_kit_values.keys()), 2)
         self.assertTrue(all('Not' in val for val in aggregate_not_kit_values), 'Only non kit products should be included')
 
+        delivery.move_line_ids.move_id.description_picking = False
         aggregate_kit_values = delivery.move_line_ids._get_aggregated_product_quantities(kit_name=bom_kit.product_id.name)
         self.assertEqual(len(aggregate_kit_values.keys()), 2)
         self.assertTrue(all('Component' in val for val in aggregate_kit_values), 'Only kit products should be included')
+        self.assertEqual(
+            {v['description'] for v in aggregate_kit_values.values()},
+            {'Kit - 1/2', 'Kit - 2/2'}
+        )
+
+    def test_scrap_consu_kit_not_available(self):
+        """
+        Scrap a consumable kit with one product not available in stock
+        """
+        self._test_scrap_kit_not_available(False)
+
+    def test_scrap_storable_kit_not_available(self):
+        """
+        Scrap a storable kit with one product not available in stock
+        """
+        self._test_scrap_kit_not_available(True)
+
+    def _test_scrap_kit_not_available(self, storable):
+        bom = self.bom_4
+        bom.type = 'phantom'
+
+        kit = bom.product_id
+        component = bom.bom_line_ids.product_id
+        kit.is_storable = storable
+        component.is_storable = True
+
+        scrap = self.env['stock.scrap'].create({
+            'product_id': kit.id,
+            'product_uom_id': kit.uom_id.id,
+            'scrap_qty': 1,
+            'bom_id': bom.id,
+        })
+
+        Form.from_action(self.env, scrap.action_validate()).save().action_done()
+
+        self.assertEqual(scrap.state, 'done')
+        self.assertRecordValues(scrap.move_ids, [
+            {'product_id': component.id, 'quantity': 1, 'state': 'done'}
+        ])
+
+    def test_kit_with_packaging_different_uom(self):
+        """
+        Test that a quantity packaging is correctly computed on a move line
+        when a kit is in a different uom than its components.
+        - Component(uom=Kg)
+        - Kit (uom=unit) -> Bom (1 dozen) -> Component (10 g)
+        - Packaging (qty=2 units of kit)
+        """
+        bom = self.bom_4
+        bom.product_id = False
+        bom.type = 'phantom'
+        kit = bom.product_tmpl_id.product_variant_id
+        kit.is_storable = True
+        # product is in unit and bom in dozen
+        kit.uom_id = self.uom_unit
+        bom.product_uom_id = self.uom_dozen
+        bom.product_qty = 1
+        # create a packaging with 2 units
+        packaging = self.env['product.packaging'].create({
+            'name': 'Packaging',
+            'qty': 2,
+            'product_id': kit.id,
+        })
+        # component is in Kg but bom_line in gram
+        component = bom.bom_line_ids.product_id
+        component.uom_id = self.uom_kg
+        bom.bom_line_ids.product_uom_id = self.uom_gram
+        bom.bom_line_ids.product_qty = 10
+
+        # create a delivery with 20 units of kit
+        warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
+        customer_location = self.env.ref('stock.stock_location_customers')
+        stock_location = warehouse.lot_stock_id
+
+        delivery = self.env['stock.picking'].create({
+            'picking_type_id': self.env.ref('stock.picking_type_out').id,
+            'location_id': stock_location.id,
+            'location_dest_id': customer_location.id,
+            'move_ids': [Command.create({
+                'name': kit.name,
+                'product_id': kit.id,
+                'product_uom_qty': 24,
+                'product_uom': kit.uom_id.id,
+                'location_id': stock_location.id,
+                'location_dest_id': customer_location.id,
+                'product_packaging_id': packaging.id,
+            })],
+        })
+        delivery.action_confirm()
+        delivery.move_ids.quantity = 20
+        delivery.move_ids.picked = True
+        delivery.button_validate()
+        self.assertTrue(delivery.state, 'done')
+        self.assertEqual(delivery.move_ids.move_line_ids.product_packaging_qty, 12)
+
+    def test_search_kit_on_quantity(self):
+        self.env['stock.quant'].create([{
+            'product_id': product.id,
+            'inventory_quantity': qty,
+            'location_id': self.test_supplier.id,
+        } for product, qty in self.expected_quantities.items()]).action_apply_inventory()
+
+        products = self.env['product.product'].search([
+            '&', ('qty_available', '>', 3), ('qty_available', '<', 9),
+        ])
+        self.assertNotIn(self.kit_1, products)  # 12
+        self.assertIn(self.kit_2, products)     # 6
+        self.assertNotIn(self.kit_3, products)  # 3
+
+    def test_scrap_change_product(self):
+        """ Ensure a scrap order automatically updates the BoM when its product is changed,
+        selecting the product's first BoM if it's a kit or set the field empty otherwise."""
+        bom_a = self.bom_1
+        bom_a.type = 'phantom'
+        product_a = bom_a.product_id
+
+        bom_b = self.bom_3
+        bom_b.type = 'phantom'
+        product_b = bom_b.product_id
+
+        product_c = self.env['product.product'].create({'name': 'product_c', 'is_storable': True})
+
+        form = Form(self.env['stock.scrap'])
+        form.product_id = product_a
+        form.bom_id = bom_a
+        form.scrap_qty = 1
+        scrap = form.save()
+
+        # assert the scrap's bom_id is set to bom_a
+        self.assertEqual(scrap.bom_id, bom_a)
+
+        form.product_id = product_b
+        scrap = form.save()
+
+        # assert the scrap's bom_id is set to bom_b after updating the product
+        self.assertEqual(scrap.bom_id, bom_b)
+
+        form.product_id = product_c
+        scrap = form.save()
+
+        # assert the scrap's bom_id is updated to False after updating the product
+        self.assertFalse(scrap.bom_id)
+
+    def test_compute_scrap_qty_mixed_bom(self):
+        """Test that _compute_scrap_qty correctly handles a recordset with
+        scraps that have no bom_id (delegating to super)"""
+        # Products without kit
+        product_no_kit_1 = self.env['product.product'].create({
+            'name': 'No Kit 1',
+            'is_storable': True,
+        })
+        product_no_kit_2 = self.env['product.product'].create({
+            'name': 'No Kit 2',
+            'is_storable': True,
+        })
+
+        # Stock for all products
+        self.env['stock.quant'].create([
+            {
+                'location_id': self.stock_location,
+                'product_id': product_no_kit_1.id,
+                'inventory_quantity': 10,
+            },
+            {
+                'location_id': self.stock_location,
+                'product_id': product_no_kit_2.id,
+                'inventory_quantity': 10,
+            },
+        ]).action_apply_inventory()
+
+        # Create 2 scraps without bom
+        scrap_no_bom_1, scrap_no_bom_2 = self.env['stock.scrap'].create([
+            {
+                'product_id': product_no_kit_1.id,
+                'scrap_qty': 3.0,
+                'product_uom_id': product_no_kit_1.uom_id.id,
+                'location_id': self.stock_location,
+            },
+            {
+                'product_id': product_no_kit_2.id,
+                'scrap_qty': 5.0,
+                'product_uom_id': product_no_kit_2.uom_id.id,
+                'location_id': self.stock_location,
+            },
+        ])
+
+        # Verify bom_id assignment
+        self.assertFalse(scrap_no_bom_1.bom_id)
+        self.assertFalse(scrap_no_bom_2.bom_id)
+
+        # Before do_scrap: no move_ids, scrap_qty should be the written values
+        self.assertEqual(scrap_no_bom_1.scrap_qty, 3.0)
+        self.assertEqual(scrap_no_bom_2.scrap_qty, 5.0)
+
+        # Execute all scraps
+        all_scraps = scrap_no_bom_1 | scrap_no_bom_2
+        for scrap in all_scraps:
+            scrap.do_scrap()
+
+        # After do_scrap: move_ids exist
+        self.assertEqual(scrap_no_bom_1.scrap_qty, 3.0)
+        self.assertEqual(scrap_no_bom_2.scrap_qty, 5.0)

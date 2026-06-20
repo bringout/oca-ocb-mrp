@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from datetime import timedelta
 from collections import defaultdict
 from odoo import fields, models, _, api
 from odoo.exceptions import UserError, ValidationError, AccessError
@@ -21,13 +22,6 @@ class MrpProduction(models.Model):
 
     incoming_picking = fields.Many2one(related='move_finished_ids.move_dest_ids.picking_id')
 
-    @api.depends('name')
-    def name_get(self):
-        return [
-            (record.id, "%s (%s)" % (record.incoming_picking.name, record.name)) if record.bom_id.type == 'subcontract'
-            else (record.id, record.name) for record in self
-        ]
-
     @api.depends('move_raw_ids.move_line_ids')
     def _compute_move_line_raw_ids(self):
         for production in self:
@@ -38,24 +32,42 @@ class MrpProduction(models.Model):
             production.bom_product_ids = production.bom_id.bom_line_ids.product_id
 
     def _inverse_move_line_raw_ids(self):
+        line_ids_to_delete = set()
         for production in self:
             line_by_product = defaultdict(lambda: self.env['stock.move.line'])
             for line in production.move_line_raw_ids:
                 line_by_product[line.product_id] |= line
             for move in production.move_raw_ids:
-                move.move_line_ids = line_by_product.pop(move.product_id, self.env['stock.move.line'])
+                lines = line_by_product.pop(move.product_id, self.env['stock.move.line'])
+                lines_to_delete = move.move_line_ids - lines
+                line_ids_to_delete.update(lines_to_delete.ids)
+                move.move_line_ids = lines
             for product_id, lines in line_by_product.items():
-                qty = sum(line.product_uom_id._compute_quantity(line.qty_done, product_id.uom_id) for line in lines)
+                qty = sum(line.product_uom_id._compute_quantity(line.quantity, product_id.uom_id) for line in lines)
                 move = production._get_move_raw_values(product_id, qty, product_id.uom_id)
                 move['additional'] = True
                 production.move_raw_ids = [(0, 0, move)]
                 production.move_raw_ids.filtered(lambda m: m.product_id == product_id)[:1].move_line_ids = lines
+        self.env['stock.move.line'].browse(line_ids_to_delete).unlink()
 
     def write(self, vals):
-        if self.env.user.has_group('base.group_portal') and not self.env.su:
+        if self.env.user._is_portal() and not self.env.su:
             unauthorized_fields = set(vals.keys()) - set(self._get_writeable_fields_portal_user())
             if unauthorized_fields:
                 raise AccessError(_("You cannot write on fields %s in mrp.production.", ', '.join(unauthorized_fields)))
+
+        if 'date_start' in vals and self.env.context.get('from_subcontract'):
+            date_start = fields.Datetime.to_datetime(vals['date_start'])
+            date_start_map = {
+                prod: date_start - timedelta(days=prod.bom_id.produce_delay)
+                if prod.bom_id else date_start
+                for prod in self
+            }
+            res = True
+            for production in self:
+                res &= super(MrpProduction, production).write({**vals, 'date_start': date_start_map[production]})
+            return res
+
         return super().write(vals)
 
     def action_merge(self):
@@ -65,17 +77,18 @@ class MrpProduction(models.Model):
 
     def subcontracting_record_component(self):
         self.ensure_one()
+        self.move_raw_ids.picked = True
         if not self._get_subcontract_move():
             raise UserError(_("This MO isn't related to a subcontracted move"))
         if float_is_zero(self.qty_producing, precision_rounding=self.product_uom_id.rounding):
             return {'type': 'ir.actions.act_window_close'}
-        if self.move_raw_ids and not any(self.move_raw_ids.mapped('quantity_done')):
+
+        if self.move_raw_ids and not any(self.move_raw_ids.mapped('quantity')):
             raise UserError(_("You must indicate a non-zero amount consumed for at least one of your components"))
         consumption_issues = self._get_consumption_issues()
         if consumption_issues:
             return self._action_generate_consumption_wizard(consumption_issues)
-
-        self._update_finished_move()
+        self.sudo()._update_finished_move()  # Portal user may need sudo rights to update pickings
         self.subcontracting_has_been_recorded = True
 
         quantity_issues = self._get_quantity_produced_issues()
@@ -94,13 +107,13 @@ class MrpProduction(models.Model):
             return action
         return {'type': 'ir.actions.act_window_close'}
 
-    def _pre_button_mark_done(self):
+    def pre_button_mark_done(self):
         if self._get_subcontract_move():
-            return True
-        return super()._pre_button_mark_done()
+            return super(MrpProduction, self.with_context(skip_consumption=True)).pre_button_mark_done()
+        return super().pre_button_mark_done()
 
-    def _should_postpone_date_finished(self, date_planned_finished):
-        return super()._should_postpone_date_finished(date_planned_finished) and not self._get_subcontract_move()
+    def _should_postpone_date_finished(self, date_finished):
+        return super()._should_postpone_date_finished(date_finished) and not self._get_subcontract_move()
 
     def _update_finished_move(self):
         """ After producing, set the move line on the subcontract picking. """
@@ -109,36 +122,29 @@ class MrpProduction(models.Model):
         if subcontract_move_id:
             quantity = self.qty_producing
             if self.lot_producing_id:
-                move_lines = subcontract_move_id.move_line_ids.filtered(lambda ml: ml.lot_id == self.lot_producing_id or not ml.lot_id)
+                move_lines = subcontract_move_id.move_line_ids.filtered(lambda ml: not ml.picked and ml.lot_id == self.lot_producing_id or not ml.lot_id)
             else:
-                move_lines = subcontract_move_id.move_line_ids.filtered(lambda ml: not ml.lot_id)
+                move_lines = subcontract_move_id.move_line_ids.filtered(lambda ml: not ml.picked and not ml.lot_id)
             # Update reservation and quantity done
             for ml in move_lines:
                 rounding = ml.product_uom_id.rounding
                 if float_compare(quantity, 0, precision_rounding=rounding) <= 0:
                     break
-                quantity_to_process = min(quantity, ml.reserved_uom_qty - ml.qty_done)
+                quantity_to_process = min(quantity, ml.quantity)
                 quantity -= quantity_to_process
 
-                new_quantity_done = (ml.qty_done + quantity_to_process)
-
                 # on which lot of finished product
-                if float_compare(new_quantity_done, ml.reserved_uom_qty, precision_rounding=rounding) >= 0:
+                if float_compare(quantity_to_process, ml.quantity, precision_rounding=rounding) >= 0:
                     ml.write({
-                        'qty_done': new_quantity_done,
+                        'quantity': quantity_to_process,
+                        'picked': True,
                         'lot_id': self.lot_producing_id and self.lot_producing_id.id,
                     })
                 else:
-                    new_qty_reserved = ml.reserved_uom_qty - new_quantity_done
-                    default = {
-                        'reserved_uom_qty': new_quantity_done,
-                        'qty_done': new_quantity_done,
+                    ml.write({
+                        'quantity': quantity_to_process,
+                        'picked': True,
                         'lot_id': self.lot_producing_id and self.lot_producing_id.id,
-                    }
-                    ml.copy(default=default)
-                    ml.with_context(bypass_reservation_update=True).write({
-                        'reserved_uom_qty': new_qty_reserved,
-                        'qty_done': 0
                     })
 
             if float_compare(quantity, 0, precision_rounding=self.product_uom_id.rounding) > 0:
@@ -148,18 +154,13 @@ class MrpProduction(models.Model):
                     'product_id': self.product_id.id,
                     'location_id': subcontract_move_id.location_id.id,
                     'location_dest_id': subcontract_move_id.location_dest_id.id,
-                    'reserved_uom_qty': 0,
                     'product_uom_id': self.product_uom_id.id,
-                    'qty_done': quantity,
+                    'quantity': quantity,
+                    'picked': True,
                     'lot_id': self.lot_producing_id and self.lot_producing_id.id,
                 })
             if not self._get_quantity_to_backorder():
-                ml_reserved = subcontract_move_id.move_line_ids.filtered(lambda ml:
-                    float_is_zero(ml.qty_done, precision_rounding=ml.product_uom_id.rounding) and
-                    not float_is_zero(ml.reserved_uom_qty, precision_rounding=ml.product_uom_id.rounding))
-                ml_reserved.unlink()
-                for ml in subcontract_move_id.move_line_ids:
-                    ml.reserved_uom_qty = ml.qty_done
+                subcontract_move_id.move_line_ids.filtered(lambda ml: not ml.picked).unlink()
                 subcontract_move_id._recompute_state()
 
     def _subcontracting_filter_to_done(self):
@@ -197,8 +198,8 @@ class MrpProduction(models.Model):
     def _subcontract_sanity_check(self):
         for production in self:
             if production.product_tracking != 'none' and not self.lot_producing_id:
-                raise UserError(_('You must enter a serial number for %s') % production.product_id.name)
+                raise UserError(_('You must enter a serial number for %s', production.product_id.name))
             for sml in production.move_raw_ids.move_line_ids:
                 if sml.tracking != 'none' and not sml.lot_id:
-                    raise UserError(_('You must enter a serial number for each line of %s') % sml.product_id.display_name)
+                    raise UserError(_('You must enter a serial number for each line of %s', sml.product_id.display_name))
         return True

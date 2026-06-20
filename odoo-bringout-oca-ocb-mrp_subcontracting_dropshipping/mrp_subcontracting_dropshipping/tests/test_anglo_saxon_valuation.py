@@ -10,8 +10,8 @@ from odoo.tests import tagged, Form
 class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon):
 
     @classmethod
-    def setUpClass(cls, chart_template_ref=None):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    def setUpClass(cls):
+        super().setUpClass()
 
         categ_form = Form(cls.env['product.category'])
         categ_form.name = 'fifo auto'
@@ -27,10 +27,10 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
         categ_form.property_valuation = 'real_time'
         cls.categ_avco_auto = categ_form.save()
 
+        (cls.product_a | cls.product_b).is_storable = True
+
         cls.dropship_route = cls.env.ref('stock_dropshipping.route_drop_shipping')
         cls.dropship_subcontractor_route = cls.env.ref('mrp_subcontracting_dropshipping.route_subcontracting_dropshipping')
-
-        (cls.product_a | cls.product_b).type = 'product'
 
         cls.bom_a = cls.env['mrp.bom'].create({
             'product_tmpl_id': cls.product_a.product_tmpl_id.id,
@@ -80,12 +80,12 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
         po.button_confirm()
 
         delivery = po.picking_ids
-        res = delivery.button_validate()
-        Form(self.env['stock.immediate.transfer'].with_context(res['context'])).save().process()
+        delivery.button_validate()
 
         stock_in_acc_id = self.categ_fifo_auto.property_stock_account_input_categ_id.id
         stock_out_acc_id = self.categ_fifo_auto.property_stock_account_output_categ_id.id
         stock_valu_acc_id = self.categ_fifo_auto.property_stock_valuation_account_id.id
+        stock_cop_acc_id = self.categ_fifo_auto.property_stock_account_production_cost_id.id
 
         amls = self.env['account.move.line'].search([('id', 'not in', all_amls_ids)])
         all_amls_ids += amls.ids
@@ -94,47 +94,45 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
             {'account_id': stock_valu_acc_id,   'product_id': self.product_a.id,    'debit': 0.0,   'credit': 20.0},
             {'account_id': stock_out_acc_id,    'product_id': self.product_a.id,    'debit': 20.0,  'credit': 0.0},
             # Receipt from subcontractor
-            {'account_id': stock_in_acc_id,     'product_id': self.product_a.id,    'debit': 0.0,   'credit': 220.0},
             {'account_id': stock_valu_acc_id,   'product_id': self.product_a.id,    'debit': 220.0, 'credit': 0.0},
+            {'account_id': stock_in_acc_id,     'product_id': self.product_a.id,    'debit': 0.0,   'credit': 200.0},
+            {'account_id': stock_cop_acc_id,    'product_id': self.product_a.id,    'debit': 0.0,   'credit': 20.0},
             # Delivery to subcontractor
             {'account_id': stock_valu_acc_id,   'product_id': self.product_b.id,    'debit': 0.0,   'credit': 20.0},
-            {'account_id': stock_out_acc_id,    'product_id': self.product_b.id,    'debit': 20.0,  'credit': 0.0},
+            {'account_id': stock_cop_acc_id,    'product_id': self.product_b.id,    'debit': 20.0,  'credit': 0.0},
             # Initial dropshipped value
             {'account_id': stock_valu_acc_id,   'product_id': self.product_a.id,    'debit': 0.0,   'credit': 200.0},
             {'account_id': stock_out_acc_id,    'product_id': self.product_a.id,    'debit': 200.0, 'credit': 0.0},
         ])
 
         # return to subcontracting location
-        sbc_location = self.env.company.subcontracting_location_id
         return_form = Form(self.env['stock.return.picking'].with_context(active_id=delivery.id, active_model='stock.picking'))
-        return_form.location_id = sbc_location
         with return_form.product_return_moves.edit(0) as line:
             line.quantity = 1
         return_wizard = return_form.save()
-        return_id, _ = return_wizard._create_returns()
-        return_picking = self.env['stock.picking'].browse(return_id)
-        return_picking.move_ids.quantity_done = 1
+        return_picking = return_wizard._create_return()
+        return_picking.move_ids.quantity = 1
+        return_picking.move_ids.picked = True
         return_picking.button_validate()
 
         amls = self.env['account.move.line'].search([('id', 'not in', all_amls_ids)])
         all_amls_ids += amls.ids
         self.assertRecordValues(amls, [
-            {'account_id': stock_valu_acc_id,   'product_id': self.product_a.id,    'debit': 0.0,   'credit': 110.0},
-            {'account_id': stock_in_acc_id,     'product_id': self.product_a.id,    'debit': 110.0, 'credit': 0.0},
+            {'account_id': stock_out_acc_id,      'product_id': self.product_a.id,    'debit': 0.0,   'credit': 110.0},
+            {'account_id': stock_valu_acc_id,     'product_id': self.product_a.id,    'debit': 110.0, 'credit': 0.0},
         ])
 
         # return to stock location
         warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
         stock_location = warehouse.lot_stock_id
-        stock_location.return_location = True
         return_form = Form(self.env['stock.return.picking'].with_context(active_id=delivery.id, active_model='stock.picking'))
-        return_form.location_id = stock_location
         with return_form.product_return_moves.edit(0) as line:
             line.quantity = 1
         return_wizard = return_form.save()
-        return_id, _ = return_wizard._create_returns()
-        return_picking = self.env['stock.picking'].browse(return_id)
-        return_picking.move_ids.quantity_done = 1
+        return_picking = return_wizard._create_return()
+        return_picking.move_ids.quantity = 1
+        return_picking.move_ids.picked = True
+        return_picking.location_dest_id = stock_location
         return_picking.button_validate()
 
         amls = self.env['account.move.line'].search([('id', 'not in', all_amls_ids)])
@@ -183,12 +181,12 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
         purchase_order = sale_order._get_purchase_orders()[0]
         purchase_order.button_confirm()
         dropship_transfer = purchase_order.picking_ids[0]
-        dropship_transfer.move_ids[0].quantity_done = 50
+        dropship_transfer.move_ids[0].quantity = 50
         dropship_transfer.with_context(cancel_backorder=False)._action_done()
         account_move_1 = sale_order._create_invoices()
         account_move_1.action_post()
         dropship_backorder = dropship_transfer.backorder_ids[0]
-        dropship_backorder.action_set_quantities_to_reservation()
+        dropship_backorder.move_ids[0].quantity = 50
         dropship_backorder._action_done()
         account_move_2 = sale_order._create_invoices()
         account_move_2.action_post()
@@ -223,6 +221,7 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
             'property_account_expense_id': self.copy_account(self.company_data['default_account_expense']).id,
             'taxes_id': [Command.set((self.tax_sale_a + self.tax_sale_b).ids)],
             'supplier_taxes_id': [Command.set((self.tax_purchase_a + self.tax_purchase_b).ids)],
+            'is_storable': True
         })
         kit_bom = self.env['mrp.bom'].create({
             'product_tmpl_id': kit_final_prod.product_tmpl_id.id,
@@ -230,13 +229,19 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
             'product_qty': 1.0,
             'type': 'phantom',
         })
-        kit_bom.bom_line_ids = [(0, 0, {
-            'product_id': self.product_b.id,
-            'product_qty': 4,
-        }), (0, 0, {
-            'product_id': product_c.id,
-            'product_qty': 2,
-        })]
+        # bom line of product_c is expressed in unit to check the uom conversion (24 unit should give the same result as 2 dozens)
+        kit_bom.bom_line_ids = [
+            Command.create({
+                'product_id': self.product_b.id,
+                'product_qty': 4,
+
+            }),
+            Command.create({
+                'product_id': product_c.id,
+                'product_qty': 24,
+                'product_uom_id': self.env.ref('uom.product_uom_unit').id
+            })
+        ]
 
         self.env['product.supplierinfo'].create({
             'product_id': self.product_b.id,
@@ -248,7 +253,7 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
             'partner_id': self.partner_a.id,
             'price': 100,
         })
-
+        self.product_b.standard_price = 10
         (kit_final_prod + self.product_b).categ_id.write({
             'property_cost_method': 'fifo',
             'property_valuation': 'real_time',
@@ -256,7 +261,7 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
 
         sale_order = self.env['sale.order'].create({
             'partner_id': self.partner_b.id,
-            'order_line': [(0, 0, {
+            'order_line': [Command.create({
                 'price_unit': 900,
                 'product_id': kit_final_prod.id,
                 'route_id': self.dropship_route.id,
@@ -267,7 +272,6 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
         purchase_order = sale_order._get_purchase_orders()[0]
         purchase_order.button_confirm()
         dropship_transfer = purchase_order.picking_ids[0]
-        dropship_transfer.move_ids[0].quantity_done = 2.0
         dropship_transfer.button_validate()
 
         account_move = sale_order._create_invoices()
@@ -278,13 +282,13 @@ class TestSubcontractingDropshippingValuation(ValuationReconciliationTestCommon)
         # 2x product_c = 100 * 2 = 200
         #                        = 840
         self.assertRecordValues(
-            account_move.line_ids,
+            account_move.line_ids.sorted('balance'),
             [
-                {'name': 'product_a',           'debit': 0.0,       'credit': 1800.0},
-                {'name': 'Tax 15% (Copy)',      'debit': 0.0,       'credit': 270.0},
-                {'name': account_move.name,     'debit': 621.0,     'credit': 0.0},
-                {'name': account_move.name,     'debit': 1449.0,    'credit': 0.0},
-                {'name': 'product_a',           'debit': 0.0,       'credit': 840 * 2},
-                {'name': 'product_a',           'debit': 840 * 2,   'credit': 0.0},
+                {'name': 'product_a',                           'debit': 0.0,       'credit': 1800.0},
+                {'name': 'product_a',                           'debit': 0.0,       'credit': 1680.0},
+                {'name': '15% (Copy)',                          'debit': 0.0,       'credit': 270.0},
+                {'name': f'{account_move.name} installment #1', 'debit': 621.0,     'credit': 0.0},
+                {'name': f'{account_move.name} installment #2', 'debit': 1449.0,    'credit': 0.0},
+                {'name': 'product_a',                           'debit': 1680.0,    'credit': 0.0},
             ]
         )
